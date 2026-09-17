@@ -36,7 +36,7 @@ async function makeRepo() {
   await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), evalYaml('example', `      - type: skill-invocation\n        config:\n          required: [example]`));
   await writeFile(
     join(root, 'eng/harness-evaluation/instructions/copilot-instructions/eval.yaml'),
-    evalYaml('instructions', undefined, `agent_environment:\n  files:\n    - src: ../../../../.github/copilot-instructions.md\n      dest: .github/copilot-instructions.md\n`),
+    evalYaml('copilot-instructions', undefined, `agent_environment:\n  files:\n    - src: ../../../../.github/copilot-instructions.md\n      dest: .github/copilot-instructions.md\n`),
   );
 
   return root;
@@ -140,6 +140,18 @@ test('inventory fails closed for malformed eval YAML', async () => {
   try {
     await writeFile(join(root, 'eng/harness-evaluation/skills/example/eval.yaml'), 'name: [');
     await assert.rejects(validateInventory(root));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('inventory requires eval names to match component ids', async () => {
+  const root = await makeRepo();
+  try {
+    const evalPath = join(root, 'eng/harness-evaluation/skills/example/eval.yaml');
+    await writeFile(evalPath, evalYaml('other', `      - type: skill-invocation\n        config:\n          required: [example]`));
+    const result = await validateInventory(root);
+    assert.match(result.errors.join('\n'), /example: eval name 'other' must match component id 'example'/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
@@ -266,7 +278,7 @@ test('eval validation delegates missing input files to Vally', async () => {
   try {
     const evalPath = join(root, 'eng/harness-evaluation/skills/example/eval.yaml');
     await writeFile(evalPath, `name: bad\ndefaults:\n  runs: \${RUNS=2}\nstimuli:\n  - name: missing-input\n    prompt: Do a generic task.\n    constraints:\n      max_turns: 10\n      max_tokens: 5000\n      max_duration: 1m\n    agent_environment:\n      files:\n        - src: src/EFCore/Missing.cs\n          dest: src/EFCore/Missing.cs\n    graders:\n      - type: token-budget\n        config:\n          max: 5000\nscoring:\n  weights:\n    token-budget: 0.1\n  threshold: 0.75\n`);
-    const errors = await validateEval(evalPath, root);
+    const errors = await validateEval(evalPath);
     assert.deepEqual(errors, []);
   } finally {
     await rm(root, { recursive: true, force: true });

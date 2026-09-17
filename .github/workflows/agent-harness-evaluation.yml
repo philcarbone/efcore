@@ -72,7 +72,7 @@ jobs:
             });
             const author = pull.user.login;
             const componentFilter = manual ? process.env.MANUAL_COMPONENT.trim() : '';
-            const requestedSha = manual ? process.env.MANUAL_COMMIT_SHA.trim() : '';
+            const requestedSha = manual ? process.env.MANUAL_COMMIT_SHA.trim().toLowerCase() : '';
             if (requestedSha && !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i.test(requestedSha)) {
               throw new Error(`Invalid commit SHA: ${requestedSha}`);
             }
@@ -501,8 +501,8 @@ jobs:
             }
           };
           visit(process.env.RESULT_ROOT);
-          const controlFile = resultFiles.find(file => file.split(path.sep).includes('control'));
-          const treatmentFile = resultFiles.find(file => file.split(path.sep).includes('treatment'));
+          const controlFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'control');
+          const treatmentFile = resultFiles.find(file => path.basename(path.dirname(file)) === 'treatment');
           if (!controlFile || !treatmentFile || resultFiles.length !== 2) {
             throw new Error(`Expected control and treatment results.jsonl files, found ${resultFiles.length}.`);
           }
@@ -620,7 +620,7 @@ jobs:
 
             try {
               const treatmentFiles = findFiles(process.env.RESULT_ROOT, 'results.jsonl')
-                .filter(file => file.split(path.sep).includes('treatment'));
+                .filter(file => path.basename(path.dirname(file)) === 'treatment');
               if (treatmentFiles.length !== 1) {
                 throw new Error(`expected one treatment results file, found ${treatmentFiles.length}`);
               }

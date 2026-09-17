@@ -26,6 +26,8 @@ stimuli:
           dest: src/EFCore.Cosmos/Query/Internal/CosmosQueryableMethodTranslatingExpressionVisitor.cs
         - src: ../../../../.github/copilot-instructions.md
           dest: .github/copilot-instructions.md
+        - src: ../../../../eng/harness-evaluation/README.md
+          dest: eng/harness-evaluation/README.md
     rubric:
       - The file is under .github/instructions, has valid frontmatter, and uses targeted query-tree applyTo patterns.
       - Guidance is concretely grounded in the staged relational and Cosmos query implementations.

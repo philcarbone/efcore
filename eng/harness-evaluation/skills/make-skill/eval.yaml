@@ -24,6 +24,10 @@ stimuli:
           dest: src/EFCore/Internal/DbContextPool.cs
         - src: ../../../../test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
           dest: test/EFCore.SqlServer.FunctionalTests/DbContextPoolingTest.cs
+        - src: ../../../../.github/copilot-instructions.md
+          dest: .github/copilot-instructions.md
+        - src: ../../../../eng/harness-evaluation/README.md
+          dest: eng/harness-evaluation/README.md
     rubric:
       - The created SKILL.md has valid matching name/frontmatter and is explicitly non-user-invocable.
       - Its workflow cites concrete DbContextPool reset, lease, or lifetime behavior visible in the staged source and tests.

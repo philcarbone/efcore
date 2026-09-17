@@ -154,9 +154,12 @@ export async function discoverComponents(repoRoot = defaultRepoRoot) {
   return discoverNonMcpComponents(repoRoot);
 }
 
-export async function validateEval(evalPath) {
+export async function validateEval(evalPath, componentId) {
   const spec = parse(await readFile(evalPath, 'utf8'));
   const errors = [];
+  if (componentId !== undefined && spec?.name !== componentId) {
+    errors.push(`eval name '${spec?.name}' must match component id '${componentId}'`);
+  }
   if (spec?.scoring?.weights?.['token-budget'] === undefined) {
     errors.push('scoring.weights.token-budget must be defined');
   }
@@ -268,7 +271,7 @@ export async function validateInventory(repoRoot = defaultRepoRoot) {
       errors.push(`${component.id}: eval does not exist: ${evalPath}`);
     } else {
       const absoluteEvalPath = join(repoRoot, evalPath);
-      errors.push(...(await validateEval(absoluteEvalPath)).map((error) => `${component.id}: ${error}`));
+      errors.push(...(await validateEval(absoluteEvalPath, component.id)).map((error) => `${component.id}: ${error}`));
       errors.push(...(await validateActivationGraders(component, absoluteEvalPath)).map((error) => `${component.id}: ${error}`));
       errors.push(...(await validateComponentEnvironment(component, absoluteEvalPath, repoRoot)).map(
         (error) => `${component.id}: ${error}`,

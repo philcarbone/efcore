@@ -58,7 +58,11 @@ async function evaluate(args) {
   if (runs !== undefined && (!Number.isSafeInteger(runs) || runs <= 0)) {
     throw new Error(`--runs must be a positive integer: ${runsValue}`);
   }
-  const workers = Number(valueAfter(args, '--workers', '1'));
+  const workersValue = valueAfter(args, '--workers', '1');
+  const workers = Number(workersValue);
+  if (!Number.isSafeInteger(workers) || workers <= 0) {
+    throw new Error(`--workers must be a positive integer: ${workersValue}`);
+  }
   const requirePass = args.includes('--require-pass');
   const outputRoot = resolve(valueAfter(args, '--output', join(defaultRepoRoot, 'artifacts', 'TestResults', 'harness-evaluation', componentId)));
   validateOutputRoot(outputRoot);
